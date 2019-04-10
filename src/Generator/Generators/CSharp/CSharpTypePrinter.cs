@@ -561,8 +561,11 @@ namespace CppSharp.Generators.CSharp
             if (a.Type.Type == null)
                 return a.Integral.ToString(CultureInfo.InvariantCulture);
             var type = a.Type.Type.Desugar();
-            return type.IsPointerToPrimitiveType() && !type.IsConstCharString() ?
-                IntPtrType : type.IsPrimitiveType(PrimitiveType.Void) ? "object" :
+            PrimitiveType pointee;
+            return type.IsPointerToPrimitiveType(out pointee) && !type.IsConstCharString() ?
+                $@"CppSharp.Runtime.Pointer<{(pointee == PrimitiveType.Void ? IntPtrType :
+                    VisitPrimitiveType(pointee, new TypeQualifiers()).Type)}>" :
+                type.IsPrimitiveType(PrimitiveType.Void) ? "object" :
                 type.Visit(this).Type;
         }
 
