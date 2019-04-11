@@ -159,10 +159,15 @@ namespace CppSharp.Passes
                 if (x.Kind != TemplateArgument.ArgumentKind.Type ||
                     y.Kind != TemplateArgument.ArgumentKind.Type)
                     return x.Equals(y);
-                return x.Type.Type.GetMappedType(ParameterTypeComparer.TypeMaps,
-                    ParameterTypeComparer.GeneratorKind).Equals(
-                    y.Type.Type.GetMappedType(ParameterTypeComparer.TypeMaps,
-                        ParameterTypeComparer.GeneratorKind));
+                Type left = x.Type.Type.GetMappedType(ParameterTypeComparer.TypeMaps,
+                    ParameterTypeComparer.GeneratorKind);
+                Type right = y.Type.Type.GetMappedType(ParameterTypeComparer.TypeMaps,
+                    ParameterTypeComparer.GeneratorKind);
+                if (left.IsReference() && !left.IsPointerToPrimitiveType())
+                    left = left.GetPointee();
+                if (right.IsReference() && !right.IsPointerToPrimitiveType())
+                    right = right.GetPointee();
+                return left.Equals(right);
             }
 
             public int GetHashCode(TemplateArgument obj)

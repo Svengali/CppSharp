@@ -166,6 +166,25 @@ namespace CppSharp.AST
             return specializations;
         }
 
+        public static IEnumerable<Class> KeepSingleAllPointersSpecialization(
+            this IEnumerable<Class> specializations)
+        {
+            bool allPointers(TemplateArgument a) =>
+                a.Type.Type?.Desugar().IsAddress() == true;
+            var groups = (from ClassTemplateSpecialization spec in specializations
+                          group spec by spec.Arguments.All(allPointers)
+                          into @group
+                          select @group).ToList();
+            foreach (var group in groups)
+            {
+                if (group.Key)
+                    yield return group.First();
+                else
+                    foreach (var specialization in group)
+                        yield return specialization;
+            }
+        }
+
         private static IEnumerable<Class> GetSpecializedClassesOf(this Class dependentClass)
         {
             if (dependentClass.IsTemplate)

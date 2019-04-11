@@ -157,9 +157,6 @@ namespace CppSharp.Generators.CSharp
             return base.VisitBuiltinType(builtin, quals);
         }
 
-        public override TypePrinterResult VisitFunctionType(FunctionType function, TypeQualifiers quals)
-            => IntPtrType;
-
         private bool allowStrings = true;
 
         public override TypePrinterResult VisitPointerType(PointerType pointer,
@@ -560,7 +557,7 @@ namespace CppSharp.Generators.CSharp
         {
             if (a.Type.Type == null)
                 return a.Integral.ToString(CultureInfo.InvariantCulture);
-            var type = a.Type.Type.Desugar();
+            var type = a.Type.Type;
             PrimitiveType pointee;
             if (type.IsPointerToPrimitiveType(out pointee) && !type.IsConstCharString())
             {
